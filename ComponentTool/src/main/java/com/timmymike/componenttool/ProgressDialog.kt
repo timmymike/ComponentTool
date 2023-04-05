@@ -40,6 +40,7 @@ class ProgressDialog constructor(context: Context, pgColor: Int? = null, progres
             })
         setCancelable(true)
         setCanceledOnTouchOutside(false)
+
     }
 
     /**
