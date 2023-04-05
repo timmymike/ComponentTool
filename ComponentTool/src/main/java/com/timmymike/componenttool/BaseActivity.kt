@@ -18,7 +18,6 @@ import java.lang.reflect.ParameterizedType
 /**
  * Activity 基本類別
  * 本類別基於 ViewBinding，將 AppCompatActivity 進行封裝。
- * 並且客製化一個標題置中的 Toolbar，以及實作了 Toolbar 的一些設定方法。
  * 除此之外，針對常見需求加入了一些實用方法來減少程式碼重複的情況發生，例如：
  *   顯示/隱藏虛擬鍵盤
  *   顯示/隱藏載入中畫面
@@ -33,25 +32,23 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
 
     lateinit var binding: T
 
-    private var mProgressView: ProgressView? = null
+    private var mProgressDialog: ProgressDialog? = null
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // 利用反射，呼叫指定 ViewBinding 中的 inflate 方法填充 View
-        val type = javaClass.genericSuperclass
-        if (type is ParameterizedType) {
-            val clazz = type.actualTypeArguments[0] as Class<T>
-            val method = clazz.getMethod("inflate", LayoutInflater::class.java)
-            binding = method.invoke(null, layoutInflater) as T
+        (javaClass.genericSuperclass as? ParameterizedType)?.let {
+
+            binding = (((it.actualTypeArguments[0] as Class<*>)
+                .getMethod("inflate", LayoutInflater::class.java))
+                .invoke(null, layoutInflater) as? T) ?: return
         }
         setContentView(binding.root)
 
-        observeViewModel()
     }
 
-    abstract fun observeViewModel()
     /**
      * 顯示虛擬鍵盤
      * @param view  鍵盤的焦點
@@ -83,21 +80,33 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
     }
 
     /**
+     * 設定載入畫面
+     * @param color 設定顏色
+     * @param view 設定替代的View(例如可以使用LottieView)
+     * @author timmy
+     * ※color和view同時傳入時，只有view的設定會有效。
+     * ※設定多次，只有最後一次的設定會有效。
+     */
+    fun setDialogLoading(color: Int? = null, view: View? = null) {
+        mProgressDialog = ProgressDialog(this, color, view)
+    }
+
+    /**
      * 顯示載入畫面
      */
     fun showDialogLoading() {
-        if (mProgressView == null) {
-            mProgressView = ProgressView(this)
+        if (mProgressDialog == null) {
+            mProgressDialog = ProgressDialog(this)
         }
-        mProgressView?.showLoading()
+        mProgressDialog?.showLoading()
     }
 
     /**
      * 隱藏載入畫面
      */
     fun hideDialogLoading() {
-        if (mProgressView != null && mProgressView!!.isShowing) {
-            mProgressView?.hideLoading()
+        if (mProgressDialog != null && mProgressDialog!!.isShowing) {
+            mProgressDialog?.hideLoading()
         }
     }
 
@@ -176,5 +185,6 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
                 Intent.FLAG_ACTIVITY_TASK_ON_HOME
         startActivity(intent)
     }
+
 
 }

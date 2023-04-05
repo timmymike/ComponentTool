@@ -44,4 +44,10 @@ dependencies {
 
     implementation 'com.github.timmymike:ViewTool:1.1.0'
 
+
+    // Coroutine
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+
+    // Lottie
+    implementation 'com.airbnb.android:lottie:3.0.6'
 }
