@@ -129,12 +129,12 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
                     else -> msg.toString()
                 }
             )
-            setPositiveButton(android.R.string.ok) { thisDlg, which ->
+            setPositiveButton(android.R.string.ok) { thisDlg, _ ->
                 onPositivePress?.invoke()
                 thisDlg.dismiss()
             }
             if (onNegativePress != null) {
-                setNegativeButton(android.R.string.cancel) { thisDlg, which ->
+                setNegativeButton(android.R.string.cancel) { thisDlg, _ ->
                     onNegativePress.invoke()
                     thisDlg.dismiss()
                 }
@@ -173,6 +173,20 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
     }
 
     /**
+     * 跳轉到其他 Activity
+     * @param intent     整理完的intent
+     * @param bundle     傳遞的資料
+     * @param closeSelf  跳轉後是否關閉自己
+     */
+    fun gotoActivity(intent: Intent, bundle: Bundle? = null, closeSelf: Boolean = false) {
+        if (bundle != null) intent.putExtras(bundle)
+        startActivity(intent)
+        if (closeSelf) {
+            finish()
+        }
+    }
+
+    /**
      * 跳轉到其他 Activity，並將所有的 Activity 從任務堆疊中移除
      * @param activity   目標 Activity
      * @param bundle     傳遞的資料
@@ -186,5 +200,17 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
         startActivity(intent)
     }
 
+    /**
+     * 跳轉到其他 Activity，並將所有的 Activity 從任務堆疊中移除
+     * @param intent  整理完的intent
+     * @param bundle  傳遞的資料
+     */
+    fun <A> gotoActivityAndClearStack(intent: Intent,bundle: Bundle?) {
+        if (bundle != null) intent.putExtras(bundle)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                Intent.FLAG_ACTIVITY_TASK_ON_HOME
+        startActivity(intent)
+    }
 
 }
