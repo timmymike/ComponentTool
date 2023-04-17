@@ -42,7 +42,7 @@ dependencies {
 
     implementation project(":ComponentTool")
 
-    implementation 'com.github.timmymike:ViewTool:1.1.0'
+    implementation 'com.github.timmymike:ViewTool:1.1.1'
 
 
     // Coroutine

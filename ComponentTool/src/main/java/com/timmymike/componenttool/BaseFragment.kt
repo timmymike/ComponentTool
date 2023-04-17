@@ -1,7 +1,5 @@
 package com.timmymike.componenttool
 
-import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -9,19 +7,21 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.annotation.StyleRes
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 import java.lang.reflect.ParameterizedType
 
+
 /**
- * Activity 基本類別
- * 本類別基於 ViewBinding，將 AppCompatActivity 進行封裝。
+ *  Fragment 基本類別
+ * 本類別基於 ViewBinding，將 Fragment 進行封裝。
  * 除此之外，針對常見需求加入了一些實用方法來減少程式碼重複的情況發生，例如：
  *   顯示/隱藏虛擬鍵盤
  *   設定/顯示/隱藏載入中畫面
@@ -32,29 +32,31 @@ import java.lang.reflect.ParameterizedType
  * @author Raymond Yang
  * @editor Timmy Hsieh
  */
-abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
+abstract class BaseFragment<T : ViewBinding> : Fragment() {
 
     val TAG = javaClass.simpleName
 
     lateinit var binding: T
 
+    private lateinit var mContext: Context
+
     private var mProgressDialog: ProgressDialog? = null
 
     private var dialogThemeId: Int? = null
 
-    @SuppressLint("ClickableViewAccessibility")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        this.mContext = context
+    }
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // 利用反射，呼叫指定 ViewBinding 中的 inflate 方法填充 View
         (javaClass.genericSuperclass as? ParameterizedType)?.let {
-
             binding = (((it.actualTypeArguments[0] as Class<*>)
                 .getMethod("inflate", LayoutInflater::class.java))
-                .invoke(null, layoutInflater) as? T) ?: return
+                .invoke(null, layoutInflater) as? T) ?: return null
         }
-        setContentView(binding.root)
-
+        return binding.root
     }
 
     /**
@@ -62,7 +64,7 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
      * @param view  鍵盤的焦點
      */
     fun showKeyboard(view: EditText?) {
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val imm = mContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         view?.requestFocus()
         imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
         view?.isCursorVisible = true
@@ -73,19 +75,10 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
      * @param view
      */
     fun hideKeyboard(view: View) {
-        val imm: InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val imm: InputMethodManager = mContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
-    /**
-     * 隱藏虛擬鍵盤
-     * @param activity
-     */
-    fun hideKeyboard(activity: Activity) {
-        val imm: InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        activity.window.decorView.clearFocus()
-        imm.hideSoftInputFromWindow(activity.window.decorView.windowToken, 0)
-    }
 
     /**
      * 設定載入畫面
@@ -96,7 +89,7 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
      * ※設定多次，只有最後一次的設定會有效。
      */
     fun setDialogLoading(color: Int? = null, view: View? = null) {
-        mProgressDialog = ProgressDialog(this, color, view)
+        mProgressDialog = ProgressDialog(mContext, color, view)
     }
 
     /**
@@ -104,7 +97,7 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
      */
     fun showDialogLoading() {
         if (mProgressDialog == null) {
-            mProgressDialog = ProgressDialog(this)
+            mProgressDialog = ProgressDialog(mContext)
         }
         mProgressDialog?.showLoading()
     }
@@ -125,13 +118,13 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
      * */
     fun checkAndRequestPermissions(stackPermissions: Array<String>, actionWhenGranted: (() -> Unit)? = null, actionWhenDenied: (() -> Unit)? = null) {
         // 檢查是否需要解釋權限請求
-        if (stackPermissions.any { ActivityCompat.shouldShowRequestPermissionRationale(this, it) }) {
+        if (stackPermissions.any { ActivityCompat.shouldShowRequestPermissionRationale(this.requireActivity(), it) }) {
             actionWhenDenied?.invoke() // 顯示權限遭拒對話框
-        } else if (stackPermissions.all { ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED }) {
+        } else if (stackPermissions.all { ContextCompat.checkSelfPermission(mContext, it) == PackageManager.PERMISSION_GRANTED }) {
             actionWhenGranted?.invoke() // 權限允許執行的動作
         } else
         // 發起權限請求
-            ActivityCompat.requestPermissions(this, stackPermissions, 107)
+            ActivityCompat.requestPermissions(this.requireActivity(), stackPermissions, 107)
     }
 
     /**
@@ -153,7 +146,7 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
         onPositivePress: (() -> Unit)? = null,
         onNegativePress: (() -> Unit)? = null
     ) {
-        (dialogThemeId?.let { AlertDialog.Builder(this, it) } ?: run { AlertDialog.Builder(this) }).apply {
+        (dialogThemeId?.let { AlertDialog.Builder(mContext, it) } ?: run { AlertDialog.Builder(mContext) }).apply {
             setMessage(
                 when (msg) {
                     is String -> msg
@@ -175,6 +168,7 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
         }
     }
 
+
     /**
      * 開啟外部預覽程式
      * @param uri   目標 Uri 字串
@@ -185,7 +179,7 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
         intent.data = Uri.parse(uri)
         startActivity(intent)
         if (closeSelf) {
-            finish()
+            requireActivity().finish()
         }
     }
 
@@ -196,25 +190,11 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
      * @param closeSelf  跳轉後是否關閉自己
      */
     fun <A> gotoActivity(activity: Class<A>, bundle: Bundle? = null, closeSelf: Boolean = false) {
-        val intent = Intent(this, activity)
+        val intent = Intent(requireActivity(), activity)
         if (bundle != null) intent.putExtras(bundle)
         startActivity(intent)
         if (closeSelf) {
-            finish()
-        }
-    }
-
-    /**
-     * 跳轉到其他 Activity
-     * @param intent     整理完的intent
-     * @param bundle     傳遞的資料
-     * @param closeSelf  跳轉後是否關閉自己
-     */
-    fun gotoActivity(intent: Intent, bundle: Bundle? = null, closeSelf: Boolean = false) {
-        if (bundle != null) intent.putExtras(bundle)
-        startActivity(intent)
-        if (closeSelf) {
-            finish()
+            requireActivity().finish()
         }
     }
 
@@ -224,20 +204,7 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
      * @param bundle     傳遞的資料
      */
     fun <A> gotoActivityAndClearStack(activity: Class<A>, bundle: Bundle? = null) {
-        val intent = Intent(this, activity)
-        if (bundle != null) intent.putExtras(bundle)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                Intent.FLAG_ACTIVITY_CLEAR_TASK or
-                Intent.FLAG_ACTIVITY_TASK_ON_HOME
-        startActivity(intent)
-    }
-
-    /**
-     * 跳轉到其他 Activity，並將所有的 Activity 從任務堆疊中移除
-     * @param intent  整理完的intent
-     * @param bundle  傳遞的資料
-     */
-    fun <A> gotoActivityAndClearStack(intent: Intent, bundle: Bundle?) {
+        val intent = Intent(requireActivity(), activity)
         if (bundle != null) intent.putExtras(bundle)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                 Intent.FLAG_ACTIVITY_CLEAR_TASK or

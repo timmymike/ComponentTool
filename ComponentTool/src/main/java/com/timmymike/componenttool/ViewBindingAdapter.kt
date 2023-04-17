@@ -3,7 +3,6 @@ package com.timmymike.componenttool
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -11,15 +10,22 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 
 /**複製自 'com.github.carousell:MonoAdapter:2.0.0' 的MonaAdapter。
+ * 使用方法：
+ * val adapter = ViewBindingAdapter.create<AdapterMyDataBinding, MyData>(AdapterMyDataBinding::inflate) {
+            textView.text = it.text1
+            button.setOnClickListener {
+                textView.text = it.text2
+            }
+        }
  * 感謝Jintin大大，
  * 提供這麼簡潔有力的程式碼！
  * 因為有些小缺失，所以加了一個部分：viewHolderInitialCallback
  */
-class BaseAdapter<V : ViewBinding, T>(
+class ViewBindingAdapter<V : ViewBinding, T>(
     private val viewProvider: (ViewGroup) -> V,
     private val binder: V.(T) -> Unit,
     diffCheck: DiffUtil.ItemCallback<T> = DefaultDiffCheck()
-) : ListAdapter<T, BaseAdapter.ViewHolder<V>>(diffCheck) {
+) : ListAdapter<T, ViewBindingAdapter.ViewHolder<V>>(diffCheck) {
 
     private class DefaultDiffCheck<T> : DiffUtil.ItemCallback<T>() {
         override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
@@ -32,14 +38,10 @@ class BaseAdapter<V : ViewBinding, T>(
         }
     }
 
-    private class BindingWrapper(private val view: View) : ViewBinding {
-        override fun getRoot() = view
-    }
-
     class ViewHolder<V : ViewBinding>(val binding: V) : RecyclerView.ViewHolder(binding.root)
 
     var viewRecycledCallback: ((ViewHolder<V>) -> Unit)? = null // View被回收時的callback
-    var viewAttachedToWindowCallback: ((ViewHolder<V>, Int) -> Unit)? = null // View顯示在畫面上時的callback
+    var viewAttachedToWindowCallback: ((ViewHolder<V>, Int) -> Unit)? = null //  View每一次更新畫面時的callback
     var viewDetachedFromWindowCallback: ((ViewHolder<V>) -> Unit)? = null // View離開畫面上時的callback
     var attachedToRecyclerViewCallback: ((RecyclerView) -> Unit)? = null // View結合進RecycleView時的callback
     var viewHolderInitialCallback: ((ViewHolder<V>) -> Unit)? = null // 第一次新增物件，顯示在畫面上時的callback
@@ -78,8 +80,8 @@ class BaseAdapter<V : ViewBinding, T>(
         fun <V : ViewBinding, T> create(
             bindingProvider: (LayoutInflater, ViewGroup?, Boolean) -> V,
             binder: V.(T) -> Unit
-        ): BaseAdapter<V, T> {
-            return BaseAdapter({
+        ): ViewBindingAdapter<V, T> {
+            return ViewBindingAdapter({
                 bindingProvider.invoke(LayoutInflater.from(it.context), it, false)
             }, binder)
         }
@@ -88,8 +90,8 @@ class BaseAdapter<V : ViewBinding, T>(
             bindingProvider: (LayoutInflater, ViewGroup?, Boolean) -> V,
             diffCheck: DiffUtil.ItemCallback<T>,
             binder: V.(T) -> Unit
-        ): BaseAdapter<V, T> {
-            return BaseAdapter({
+        ): ViewBindingAdapter<V, T> {
+            return ViewBindingAdapter({
                 bindingProvider.invoke(LayoutInflater.from(it.context), it, false)
             }, binder, diffCheck)
         }
