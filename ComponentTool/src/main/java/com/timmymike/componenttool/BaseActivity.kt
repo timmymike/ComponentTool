@@ -42,7 +42,6 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
 
     private var dialogThemeId: Int? = null
 
-    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

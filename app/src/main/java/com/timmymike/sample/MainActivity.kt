@@ -25,7 +25,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         }
         val colorList = mutableListOf("#5e5ce6", "#8b00ff", "#c80080", "#d25f52", "#2eb8b8", "#a80000", "#ff6600", "#800000", "#b200b2", "#9932cc", "#006400", "#00ffff", "#d2691e", "#7f7f7f", "#7cfc00", "#ff00ff", "#f08080", "#ffa500", "#00fa9a", "#1e90ff")
         val selectedList = MutableList(colorList.size) { false }
-        binding.vp2.adapter = ViewBindingAdapter.Companion.create<AdapterSampleBinding, String>(AdapterSampleBinding::inflate) { it ->
+        binding.vp2.adapter = ViewBindingAdapter.create<AdapterSampleBinding, String>(AdapterSampleBinding::inflate) { it ->
             tvSample.text = it
             ivSample.clickWithTrigger { v ->
                 v?.isSelected = v?.isSelected?.not() ?: false

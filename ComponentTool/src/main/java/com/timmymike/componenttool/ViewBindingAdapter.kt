@@ -16,7 +16,15 @@ import androidx.viewbinding.ViewBinding
             button.setOnClickListener {
                 textView.text = it.text2
             }
+        }.apply{
+           viewHolderInitialCallback = { it -> // 第一次產生
+               it.binding.root.resetLayoutTextSize()
+           }
+           viewAttachedToWindowCallback = { it, position -> // 每一次更新畫面
+                it.binding.ivSample.isSelected = selectedList[position]
+            }
         }
+
  * 感謝Jintin大大，
  * 提供這麼簡潔有力的程式碼！
  * 因為有些小缺失，所以加了一個部分：viewHolderInitialCallback

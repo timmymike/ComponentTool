@@ -42,8 +42,7 @@ dependencies {
 
     implementation project(":ComponentTool")
 
-    implementation 'com.github.timmymike:ViewTool:1.1.1'
-
+    implementation 'com.github.timmymike:ViewTool:1.2.0'
 
     // Coroutine
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
