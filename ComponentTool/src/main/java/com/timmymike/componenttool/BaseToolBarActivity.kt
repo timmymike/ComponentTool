@@ -25,8 +25,8 @@ import com.timmymike.viewtool.getScreenHeightPixels
 import com.timmymike.viewtool.getScreenWidthPixels
 import com.timmymike.viewtool.setHeight
 import com.timmymike.viewtool.setRippleBackground
+import com.timmymike.viewtool.setSquSize
 import com.timmymike.viewtool.setTextSize
-import com.timmymike.viewtool.setViewSize
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -93,9 +93,9 @@ abstract class BaseToolBarActivity<T : ViewBinding> : AppCompatActivity() {
     open fun initToolBarIcons(ratio: Float = -1f, iconSize: Int = getScreenWidthPixels() / 10) = baseBinding.run {
 
         val useSize = ratio.takeIf { it != -1f }?.let { getScreenWidthPixels() * it }?.toInt() ?: iconSize
-        ivLeftButton.setViewSize(useSize, useSize)
-        ivRightButton1.setViewSize(useSize, useSize)
-        ivRightButton2.setViewSize(useSize, useSize)
+        ivLeftButton.setSquSize( useSize)
+        ivRightButton1.setSquSize(useSize)
+        ivRightButton2.setSquSize(useSize)
 
     }
 
@@ -300,7 +300,7 @@ abstract class BaseToolBarActivity<T : ViewBinding> : AppCompatActivity() {
      * 新增一個不一樣的ProgressView蓋上去
     setDialogLoading(view = ProgressBar(this@MainActivity).apply {
     indeterminateDrawable.colorFilter = PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
-    setViewSize(200.dpToPx, 200.dpToPx)
+    setSquSize(200.dpToPx)
     })
      *
      * 或
