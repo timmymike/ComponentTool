@@ -1,28 +1,39 @@
 package com.timmymike.componenttool
 
-import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.ImageView
+import androidx.annotation.ColorInt
 import androidx.annotation.StyleRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.viewbinding.ViewBinding
+import com.timmymike.componenttool.databinding.ActivityBaseToolBarBinding
+import com.timmymike.viewtool.getScreenHeightPixels
+import com.timmymike.viewtool.getScreenWidthPixels
+import com.timmymike.viewtool.setHeight
+import com.timmymike.viewtool.setRippleBackground
+import com.timmymike.viewtool.setTextSize
+import com.timmymike.viewtool.setViewSize
 import java.lang.reflect.ParameterizedType
 
 /**
  * Activity 基本類別
  * 本類別基於 ViewBinding，將 AppCompatActivity 進行封裝。
  * 除此之外，針對常見需求加入了一些實用方法來減少程式碼重複的情況發生，例如：
+ *   頂端工具列的Icon設計、動作
  *   顯示/隱藏虛擬鍵盤
  *   設定/顯示/隱藏載入中畫面
  *   顯示簡易的訊息對話視窗
@@ -32,11 +43,13 @@ import java.lang.reflect.ParameterizedType
  * @author Raymond Yang
  * @editor Timmy Hsieh
  */
-abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
+abstract class BaseToolBarActivity<T : ViewBinding> : AppCompatActivity() {
 
     val TAG = javaClass.simpleName
 
     lateinit var binding: T
+
+    lateinit var baseBinding: ActivityBaseToolBarBinding // LinearLayout封裝的Layout
 
     private var mProgressDialog: ProgressDialog? = null
 
@@ -45,6 +58,13 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        ActivityBaseToolBarBinding.inflate(layoutInflater).run {
+            baseBinding = this
+            tvToolbarTitle.setTextSize(18)
+        }
+
+        setContentView(baseBinding.root)
+
         // 利用反射，呼叫指定 ViewBinding 中的 inflate 方法填充 View
         (javaClass.genericSuperclass as? ParameterizedType)?.let {
 
@@ -52,8 +72,177 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
                 .getMethod("inflate", LayoutInflater::class.java))
                 .invoke(null, layoutInflater) as? T) ?: return
         }
-        setContentView(binding.root)
 
+        baseBinding.root.addView(
+            binding.root,
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
+        )
+
+        supportActionBar?.hide() // 不使用原生的Title，使用自定義的。
+
+        initToolBarIcons()
+        setToolbarHeight()
+    }
+
+    /**
+     * ToolBarIcons 的 IconSize
+     * @param ratio  依照螢幕的寬度比例來取得長度pixel值
+     * @param iconSize  直接指定icon的pixel值
+     */
+
+    open fun initToolBarIcons(ratio: Float = -1f, iconSize: Int = getScreenWidthPixels() / 10) = baseBinding.run {
+
+        val useSize = ratio.takeIf { it != -1f }?.let { getScreenWidthPixels() * it }?.toInt() ?: iconSize
+        ivLeftButton.setViewSize(useSize, useSize)
+        ivRightButton1.setViewSize(useSize, useSize)
+        ivRightButton2.setViewSize(useSize, useSize)
+
+    }
+
+    /**設定左邊Icon：*/
+    /**
+     * Res：圖片
+     * */
+    fun setLeftButtonRes(iconRes: Int?) = baseBinding.ivLeftButton.let {
+        iconRes?.run {
+            it.setImageResource(this)
+            it.isVisible = true
+        } ?: run { it.isVisible = false }
+    }
+
+    /**
+     * Ripple：水波紋
+     * */
+    fun setLeftButtonRipple(colorInt: Int) = baseBinding.ivLeftButton.run {
+        setRippleBackground(colorInt)
+        isClickable = true
+    }
+
+    /**
+     * Click：點擊後要執行的動作
+     * */
+    fun setLeftButtonClick(listener: View.OnClickListener?) = baseBinding.ivLeftButton.setOnClickListener(listener)
+
+
+    /**設定工具列最右邊的Icon：*/
+    /**
+     * Res：圖片
+     * */
+    fun setRightButton1Res(iconRes: Int?) = baseBinding.ivRightButton1.let {
+        iconRes?.run {
+            it.setImageResource(this)
+            it.isVisible = true
+        } ?: run { it.isVisible = false }
+    }
+
+    /**
+     * Ripple：水波紋
+     * */
+    fun setRightButton1Ripple(colorInt: Int) = baseBinding.ivRightButton1.run {
+        setRippleBackground(colorInt)
+        isClickable = true
+    }
+
+    /**
+     * Click：點擊後要執行的動作
+     * */
+    fun setRightButton1Click(listener: View.OnClickListener?) = baseBinding.ivRightButton1.setOnClickListener(listener)
+
+    /**設定工具列右二的Icon：*/
+    /**
+     * Res：圖片
+     * */
+    fun setRightButton2Res(iconRes: Int?) = baseBinding.ivRightButton2.let {
+        iconRes?.run {
+            it.setImageResource(this)
+            it.isVisible = true
+        } ?: run { it.isVisible = false }
+    }
+
+    /**
+     * Ripple：水波紋
+     * 註：必須設定點擊後要執行的動作才能有水波紋效果。
+     * */
+    fun setRightButton2Ripple(colorInt: Int) = baseBinding.ivRightButton2.run {
+        setRippleBackground(colorInt)
+        isClickable = true
+    }
+
+    /**
+     * Click：點擊後要執行的動作
+     * */
+    fun setRightButton2Click(listener: View.OnClickListener?) = baseBinding.ivRightButton2.setOnClickListener(listener)
+
+
+    /**
+     * 設定 Toolbar 的高度
+     * @param height  Toolbar 的高度(像素)
+     */
+    open fun setToolbarHeight(height: Int = getScreenHeightPixels() / 10) {
+        baseBinding.clToolBar.setHeight(height)
+    }
+
+
+    /**
+     * 是否顯示 Toolbar
+     * @param isVisible  是否顯示。true=顯示、false=不顯示
+     */
+    fun setToolbarVisible(isVisible: Boolean) {
+        baseBinding.clToolBar.isVisible = isVisible
+    }
+
+    /**
+     * 設定 Toolbar 的背景圖片
+     * @param resId  Toolbar 的背景圖片資源
+     */
+    fun setToolbarBackgroundById(resId: Int) {
+        baseBinding.clToolBar.setBackgroundResource(resId)
+    }
+
+    /**
+     * 設定 Toolbar 的標題圖片
+     * @param resId  Toolbar 的標題圖片資源
+     */
+    fun setToolbarTitleImgById(resId: Int) {
+        baseBinding.ivToolbarTitle.run {
+            setImageResource(resId)
+            scaleType = ImageView.ScaleType.FIT_CENTER
+        }
+    }
+
+    /**
+     * 設定 Toolbar 的背景色
+     * @param colorInt  Toolbar 的色
+     */
+    fun setToolbarBackgroundColor(@ColorInt colorInt: Int) {
+        baseBinding.clToolBar.setBackgroundColor(colorInt)
+    }
+
+    /**
+     * Android版本大於等於21才有效。
+     * 設定 Toolbar 的高度，若需顯示 Toolbar 的陰影，請將高度設定高於0
+     * @param elevation  Toolbar 的高度
+     */
+    fun setToolbarElevation(elevation: Float) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            baseBinding.clToolBar.elevation = elevation
+        }
+    }
+
+    /**
+     * 設定 Toolbar 的文字色彩
+     * @param colorInt  Toolbar 的文字色彩
+     */
+    fun setToolbarTextColor(@ColorInt colorInt: Int) {
+        baseBinding.tvToolbarTitle.setTextColor(colorInt)
+    }
+
+    override fun setTitle(title: CharSequence?) {
+        baseBinding.tvToolbarTitle.text = title
+    }
+
+    override fun setTitle(titleId: Int) {
+        baseBinding.tvToolbarTitle.text = getString(titleId)
     }
 
     /**
@@ -93,6 +282,31 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
      * @author timmy
      * ※color和view同時傳入時，只有view的設定會有效。
      * ※設定多次，只有最後一次的設定會有效。
+     * 使用範例：
+     * 使用Lottie來顯示動畫
+    setDialogLoading(view = com.airbnb.lottie.LottieAnimationView(this@MainActivity).apply {
+    // 異步載入
+    LottieCompositionFactory.fromAsset(context, "loading_1.json").addListener { result ->
+    setComposition(result)
+    }
+    // 同步載入
+    setComposition(LottieCompositionFactory.fromAssetSync(context, "loading_1.json").value ?: return@apply)
+    repeatCount = LottieDrawable.INFINITE
+    repeatMode = LottieDrawable.RESTART
+    playAnimation()
+    })
+     *
+     * 或
+     * 新增一個不一樣的ProgressView蓋上去
+    setDialogLoading(view = ProgressBar(this@MainActivity).apply {
+    indeterminateDrawable.colorFilter = PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
+    setViewSize(200.dpToPx, 200.dpToPx)
+    })
+     *
+     * 或
+     * 原生動畫直接設定顏色
+    setDialogLoading(Color.GRAY) // 設定灰色
+     *
      */
     fun setDialogLoading(color: Int? = null, view: View? = null) {
         mProgressDialog = ProgressDialog(this, color, view)
@@ -236,7 +450,7 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
      * @param intent  整理完的intent
      * @param bundle  傳遞的資料
      */
-    fun <A> gotoActivityAndClearStack(intent: Intent, bundle: Bundle?) {
+    fun gotoActivityAndClearStack(intent: Intent, bundle: Bundle?) {
         if (bundle != null) intent.putExtras(bundle)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                 Intent.FLAG_ACTIVITY_CLEAR_TASK or

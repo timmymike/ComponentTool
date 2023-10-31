@@ -12,6 +12,7 @@ import androidx.viewbinding.ViewBinding
 /**複製自 'com.github.carousell:MonoAdapter:2.0.0' 的MonaAdapter。
  * 使用方法：
  * val adapter = ViewBindingAdapter.create<AdapterMyDataBinding, MyData>(AdapterMyDataBinding::inflate) {
+   // 寫在這裡的內容，會於 onBindViewHolder 內呼叫。
             textView.text = it.text1
             button.setOnClickListener {
                 textView.text = it.text2
@@ -23,19 +24,21 @@ import androidx.viewbinding.ViewBinding
            viewAttachedToWindowCallback = { it, position -> // 每一次更新畫面
                 it.binding.ivSample.isSelected = selectedList[position]
             }
+            submitList(listOf(MyData(...))) // 填入資料
         }
-
+ // 指定adapter
+   binding.vp2.adapter = adpater
  * 感謝Jintin大大，
  * 提供這麼簡潔有力的程式碼！
  * 因為有些小缺失，所以加了一個部分：viewHolderInitialCallback
  */
-class ViewBindingAdapter<V : ViewBinding, T>(
+class ViewBindingAdapter<V : ViewBinding, T : Any>(
     private val viewProvider: (ViewGroup) -> V,
     private val binder: V.(T) -> Unit,
     diffCheck: DiffUtil.ItemCallback<T> = DefaultDiffCheck()
 ) : ListAdapter<T, ViewBindingAdapter.ViewHolder<V>>(diffCheck) {
 
-    private class DefaultDiffCheck<T> : DiffUtil.ItemCallback<T>() {
+    private class DefaultDiffCheck<T : Any> : DiffUtil.ItemCallback<T>() {
         override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
             return oldItem?.equals(newItem)?:false
         }
@@ -85,7 +88,7 @@ class ViewBindingAdapter<V : ViewBinding, T>(
 
     companion object {
 
-        fun <V : ViewBinding, T> create(
+        fun <V : ViewBinding, T:Any> create(
             bindingProvider: (LayoutInflater, ViewGroup?, Boolean) -> V,
             binder: V.(T) -> Unit
         ): ViewBindingAdapter<V, T> {
@@ -94,7 +97,7 @@ class ViewBindingAdapter<V : ViewBinding, T>(
             }, binder)
         }
 
-        fun <V : ViewBinding, T> create(
+        fun <V : ViewBinding, T:Any> create(
             bindingProvider: (LayoutInflater, ViewGroup?, Boolean) -> V,
             diffCheck: DiffUtil.ItemCallback<T>,
             binder: V.(T) -> Unit
