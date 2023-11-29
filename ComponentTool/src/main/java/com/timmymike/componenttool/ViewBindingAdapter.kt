@@ -19,7 +19,7 @@ import androidx.viewbinding.ViewBinding
             }
         }.apply{
            viewHolderInitialCallback = { it -> // 第一次產生
-               it.binding.root.resetLayoutTextSize()
+               (it.binding.root as? ViewGroup)?.resetLayoutTextSize()
            }
            viewAttachedToWindowCallback = { it, position -> // 每一次更新畫面
                 it.binding.ivSample.isSelected = selectedList[position]

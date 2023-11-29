@@ -87,6 +87,31 @@ abstract class BaseFragment<T : ViewBinding> : Fragment() {
      * @author timmy
      * ※color和view同時傳入時，只有view的設定會有效。
      * ※設定多次，只有最後一次的設定會有效。
+     * 使用範例：
+     * 使用Lottie來顯示動畫
+    setDialogLoading(view = com.airbnb.lottie.LottieAnimationView(this@MainActivity).apply {
+    // 異步載入
+    LottieCompositionFactory.fromAsset(context, "loading_1.json").addListener { result ->
+    setComposition(result)
+    }
+    // 同步載入
+    setComposition(LottieCompositionFactory.fromAssetSync(context, "loading_1.json").value ?: return@apply)
+    repeatCount = LottieDrawable.INFINITE
+    repeatMode = LottieDrawable.RESTART
+    playAnimation()
+    })
+     *
+     * 或
+     * 新增一個不一樣的ProgressView蓋上去
+    setDialogLoading(view = ProgressBar(this@MainActivity).apply {
+    indeterminateDrawable.colorFilter = PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
+    setSquSize(200.dpToPx)
+    })
+     *
+     * 或
+     * 原生動畫直接設定顏色
+    setDialogLoading(Color.GRAY) // 設定灰色
+     *
      */
     fun setDialogLoading(color: Int? = null, view: View? = null) {
         mProgressDialog = ProgressDialog(mContext, color, view)

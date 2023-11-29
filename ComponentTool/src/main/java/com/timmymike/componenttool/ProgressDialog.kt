@@ -12,11 +12,16 @@ import android.view.View
 import android.view.Window
 import android.widget.ProgressBar
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
+import com.timmymike.viewtool.getScreenWidthPixels
 
 /**
  * 載入中對話視窗
  * 提示使用者目前正在進行耗時的工作。
+ * 可以給使用者自訂。
+ * @param progressView 自定義的等待對話框
+ * @param pgColor 自定義的對襪框顏色
+ * 使用順序為優先使用 progressView 若為 null，則使用 pgColor。
+ * 若 pgColor 為 null ，則使用 ProgressBar 的預設顏色。
  */
 class ProgressDialog constructor(context: Context, pgColor: Int? = null, progressView: View? = null) : Dialog(context, android.R.style.Theme_Dialog) {
 
@@ -32,7 +37,7 @@ class ProgressDialog constructor(context: Context, pgColor: Int? = null, progres
                             indeterminateDrawable.colorFilter = PorterDuffColorFilter(it, PorterDuff.Mode.SRC_IN)
                         }
                         // 長寬設置為螢幕寬度的 1/5
-                        (Resources.getSystem().displayMetrics.widthPixels / 5).let { dimen ->
+                        ( getScreenWidthPixels() / 5).let { dimen ->
                             layoutParams = ConstraintLayout.LayoutParams(dimen, dimen) // 正方形。
                         }
                     })
