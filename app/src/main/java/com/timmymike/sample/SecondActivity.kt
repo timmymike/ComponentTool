@@ -3,6 +3,7 @@ package com.timmymike.sample
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.timmymike.componenttool.TranslationUtil
+import com.timmymike.componenttool.TranslationUtil.setAnimation
 
 class SecondActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -12,6 +13,6 @@ class SecondActivity : AppCompatActivity() {
 
     override fun finish() {
         super.finish()
-        TranslationUtil.setAnimation(this@SecondActivity, TranslationUtil.AnimType.UP_TO_BOTTOM)
+        this@SecondActivity.setAnimation( TranslationUtil.AnimType.UP_TO_BOTTOM)
     }
 }

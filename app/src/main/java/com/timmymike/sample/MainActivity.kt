@@ -9,6 +9,7 @@ import com.airbnb.lottie.LottieCompositionFactory
 import com.airbnb.lottie.LottieDrawable
 import com.timmymike.componenttool.BaseToolBarActivity
 import com.timmymike.componenttool.TranslationUtil
+import com.timmymike.componenttool.TranslationUtil.setAnimation
 import com.timmymike.componenttool.ViewBindingAdapter
 import com.timmymike.sample.databinding.ActivityMainBinding
 import com.timmymike.sample.databinding.AdapterSampleBinding
@@ -117,7 +118,7 @@ class MainActivity : BaseToolBarActivity<ActivityMainBinding>() {
 //                v?.isSelected = v?.isSelected?.not() ?: false
 //                selectedList[colorList.indexOf(it)] = v?.isSelected ?: false
                 gotoActivity(Intent(this@MainActivity,SecondActivity::class.java))
-                TranslationUtil.setAnimation(this@MainActivity, TranslationUtil.AnimType.BOTTOM_TO_UP)
+                this@MainActivity.setAnimation( TranslationUtil.AnimType.BOTTOM_TO_UP)
             }
 
             ivSample.setClickBgState(
