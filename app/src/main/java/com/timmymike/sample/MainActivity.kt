@@ -1,23 +1,18 @@
 package com.timmymike.sample
 
+import android.content.Intent
 import android.graphics.Color
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.util.Log
-import android.widget.ProgressBar
 import com.airbnb.lottie.LottieAnimationView
 import com.airbnb.lottie.LottieCompositionFactory
 import com.airbnb.lottie.LottieDrawable
 import com.timmymike.componenttool.BaseToolBarActivity
+import com.timmymike.componenttool.TranslationUtil
 import com.timmymike.componenttool.ViewBindingAdapter
 import com.timmymike.sample.databinding.ActivityMainBinding
 import com.timmymike.sample.databinding.AdapterSampleBinding
 import com.timmymike.viewtool.*
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class MainActivity : BaseToolBarActivity<ActivityMainBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,7 +96,7 @@ class MainActivity : BaseToolBarActivity<ActivityMainBinding>() {
         /**只將原有的ProgressView設定不同的顏色*/
 //        setDialogLoading(color = Color.GREEN)
 
-        showDialogLoading()
+//        showDialogLoading()
 
 //        MainScope().launch {
 //            showDialogLoading()
@@ -119,8 +114,10 @@ class MainActivity : BaseToolBarActivity<ActivityMainBinding>() {
         binding.vp2.adapter = ViewBindingAdapter.create<AdapterSampleBinding, String>(AdapterSampleBinding::inflate) { it ->
             tvSample.text = it
             ivSample.clickWithTrigger { v ->
-                v?.isSelected = v?.isSelected?.not() ?: false
-                selectedList[colorList.indexOf(it)] = v?.isSelected ?: false
+//                v?.isSelected = v?.isSelected?.not() ?: false
+//                selectedList[colorList.indexOf(it)] = v?.isSelected ?: false
+                gotoActivity(Intent(this@MainActivity,SecondActivity::class.java))
+                TranslationUtil.setAnimation(this@MainActivity, TranslationUtil.AnimType.BOTTOM_TO_UP)
             }
 
             ivSample.setClickBgState(
