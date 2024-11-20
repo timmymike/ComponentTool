@@ -12,7 +12,8 @@ import androidx.viewbinding.ViewBinding
 /**複製自 'com.github.carousell:MonoAdapter:2.0.0' 的MonaAdapter。
  * 使用方法：
  * val adapter = ViewBindingAdapter.create<AdapterMyDataBinding, MyData>(AdapterMyDataBinding::inflate) {
-   // 寫在這裡的內容，會於 onBindViewHolder 內呼叫。
+        // 寫在這裡的內容，會於 onBindViewHolder 內呼叫。
+        val adapterPosition = listOf(MyData(...)).indexOf(it)
             textView.text = it.text1
             button.setOnClickListener {
                 textView.text = it.text2
