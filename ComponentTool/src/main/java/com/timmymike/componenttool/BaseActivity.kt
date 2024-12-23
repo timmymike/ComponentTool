@@ -1,22 +1,32 @@
 package com.timmymike.componenttool
 
-import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.annotation.StyleRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.viewbinding.ViewBinding
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
+import com.timmymike.viewtool.getResourceDrawable
+import com.timmymike.viewtool.getResourceString
+import com.timmymike.viewtool.getRoundBg
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -158,6 +168,45 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
             ActivityCompat.requestPermissions(this, stackPermissions, 107)
     }
 
+    /**
+     * showToast
+     * 顯示Toast(用SnackBar的方式，因Toast已被棄用)
+     * */
+    fun showToast(
+        msg: Int = 0, img: Int? = null, msgStr: String? = null,
+        bgColorId: Int = Color.parseColor("#B3000000"), disToBottom: Int = 0
+    ) {
+        Snackbar.make(binding.root, "", Snackbar.LENGTH_LONG).apply {
+            // 獲取 Snackbar 的佈局視圖
+            (view as Snackbar.SnackbarLayout).run { // 包住自定義Layout的的外層Layout。
+                // 指定螢幕寬高
+                layoutParams = FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.WRAP_CONTENT,
+                    FrameLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    gravity = Gravity.CENTER
+                }
+                // 設定動畫類型 // 預設為由下往上滑出，再往下消失，改為淡出淡入
+                animationMode = BaseTransientBottomBar.ANIMATION_MODE_FADE
+                // 設定外層的Layout為透明(因為只有inflate出來的View要有顏色)
+                setBackgroundColor(Color.TRANSPARENT)
+
+                setPadding(0, 0, 0, disToBottom) // 撐開的長度(用來往上偏移整個Layout)
+
+                // 將視圖添加到 Snackbar 的佈局  // inflate自定義視圖
+                addView(layoutInflater.inflate(R.layout.toast, binding.root as ViewGroup, false).apply {
+                    this.findViewById<TextView>(R.id.text).text = (msgStr ?: getResourceString(msg)).also { str ->
+                        this.background = getRoundBg((4 * str.split("\n").size), bgColorId) // 自動依照行數來增大背景圓角
+                    }
+                    this.findViewById<ImageView>(R.id.iv_toast_icon).let { iv ->
+                        img?.let { iv.setImageDrawable(getResourceDrawable(it)) } ?: run { iv.isVisible = false }
+                    }
+
+                }, 0)
+            }
+            // 顯示 Snackbar
+        }.show()
+    }
     /**
      * 自定義對話框風格
      * @param themeId 資源檔的風格，R.style.XXX

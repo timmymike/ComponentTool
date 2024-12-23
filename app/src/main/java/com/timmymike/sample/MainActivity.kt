@@ -13,7 +13,17 @@ import com.timmymike.componenttool.TranslationUtil.setAnimation
 import com.timmymike.componenttool.ViewBindingAdapter
 import com.timmymike.sample.databinding.ActivityMainBinding
 import com.timmymike.sample.databinding.AdapterSampleBinding
-import com.timmymike.viewtool.*
+import com.timmymike.viewtool.clickWithTrigger
+import com.timmymike.viewtool.dpToPx
+import com.timmymike.viewtool.getResourceColor
+import com.timmymike.viewtool.getScreenHeightPixels
+import com.timmymike.viewtool.resetLayoutTextSize
+import com.timmymike.viewtool.setClickBgState
+import com.timmymike.viewtool.setClickBgStateById
+import com.timmymike.viewtool.setClickTextColorStateById
+import com.timmymike.viewtool.setRippleBackground
+import com.timmymike.viewtool.setTextSize
+import com.timmymike.viewtool.setViewSize
 
 class MainActivity : BaseToolBarActivity<ActivityMainBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,9 +71,13 @@ class MainActivity : BaseToolBarActivity<ActivityMainBinding>() {
 
     private fun initViewComponent() {
         binding.tv.apply {
+
             isClickable = true
             setTextSize(50)
-            clickWithTrigger { isSelected = !isSelected }
+            clickWithTrigger {
+                showToast(msgStr = "機器人API初始化失敗\n請從面重新啟動本App\n以使用語音功能。")
+                isSelected = !isSelected
+            }
             setClickTextColorStateById(R.color.black, R.color.purple_700)
             setClickBgStateById(R.color.teal_700, android.R.color.holo_purple)
             setRippleBackground(R.color.black)
@@ -79,7 +93,7 @@ class MainActivity : BaseToolBarActivity<ActivityMainBinding>() {
             }
 
             // 同步載入
-    //            setComposition(LottieCompositionFactory.fromAssetSync(context, "loading_1.json").value ?: return@apply)
+            //            setComposition(LottieCompositionFactory.fromAssetSync(context, "loading_1.json").value ?: return@apply)
 
             repeatCount = LottieDrawable.INFINITE
             repeatMode = LottieDrawable.RESTART
@@ -117,8 +131,8 @@ class MainActivity : BaseToolBarActivity<ActivityMainBinding>() {
             ivSample.clickWithTrigger { v ->
 //                v?.isSelected = v?.isSelected?.not() ?: false
 //                selectedList[colorList.indexOf(it)] = v?.isSelected ?: false
-                gotoActivity(Intent(this@MainActivity,SecondActivity::class.java))
-                this@MainActivity.setAnimation( TranslationUtil.AnimType.BOTTOM_TO_UP)
+                gotoActivity(Intent(this@MainActivity, SecondActivity::class.java))
+                this@MainActivity.setAnimation(TranslationUtil.AnimType.BOTTOM_TO_UP)
             }
 
             ivSample.setClickBgState(
