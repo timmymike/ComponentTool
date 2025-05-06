@@ -75,7 +75,7 @@ class MainActivity : BaseToolBarActivity<ActivityMainBinding>() {
             isClickable = true
             setTextSize(50)
             clickWithTrigger {
-                showToast(msgStr = "機器人API初始化失敗\n請從面重新啟動本App\n以使用語音功能。")
+                showToast(img = R.drawable.ic_icon_check_circle, msgStr = "機器人API初始化失敗\n請從面重新啟動本App \n以使用語音功能。")
                 isSelected = !isSelected
             }
             setClickTextColorStateById(R.color.black, R.color.purple_700)

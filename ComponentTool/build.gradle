@@ -34,9 +34,9 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'com.google.android.material:material:1.5.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     implementation 'com.github.timmymike:ViewTool:1.4.5'
@@ -46,6 +46,7 @@ dependencies {
 task generateSourcesJar(type: Jar) {
     from android.sourceSets.main.java.getSrcDirs()
     archiveClassifier.set('sources')
+    destinationDirectory.set(file("$buildDir/generated/sourcesJar"))
 }
 
 afterEvaluate {
@@ -56,7 +57,7 @@ afterEvaluate {
 //                groupId = 'com.github.timmymike'
 //                artifactId = 'LogTool'
                 // 上傳 source code，這樣使用方可以看到註解
-                artifact generateSourcesJar
+//                artifact generateSourcesJar
             }
         }
     }
