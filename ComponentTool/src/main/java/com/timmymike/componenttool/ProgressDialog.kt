@@ -29,6 +29,7 @@ class ProgressDialog constructor(context: Context, pgColor: Int? = null, progres
 
         // 設定對話框底色為透明
         window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        window?.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL)
         setContentView(
             ConstraintLayout(context).apply {
                 addView(
@@ -37,7 +38,7 @@ class ProgressDialog constructor(context: Context, pgColor: Int? = null, progres
                             indeterminateDrawable.colorFilter = PorterDuffColorFilter(it, PorterDuff.Mode.SRC_IN)
                         }
                         // 長寬設置為螢幕寬度的 1/5
-                        ( getScreenWidthPixels() / 5).let { dimen ->
+                        (getScreenWidthPixels() / 5).let { dimen ->
                             layoutParams = ConstraintLayout.LayoutParams(dimen, dimen) // 正方形。
                         }
                     })
