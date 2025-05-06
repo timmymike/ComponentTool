@@ -19,8 +19,10 @@ import androidx.annotation.StyleRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.toColorInt
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
+import com.timmymike.viewtool.getResourceString
 import com.timmymike.viewtool.getScreenHeightPixels
 import java.lang.reflect.ParameterizedType
 
@@ -166,7 +168,7 @@ abstract class BaseFragment<T : ViewBinding> : Fragment() {
         msg: Int = 0,
         img: Int? = null,
         msgStr: String? = null,
-        bgColorId: Int = Color.parseColor("#B3000000"),
+        bgColorId: Int = "#B3000000".toColorInt(),
         disToBottom: Int = getScreenHeightPixels() / 2
     ) {
         val inflater = LayoutInflater.from(requireContext())
@@ -176,7 +178,7 @@ abstract class BaseFragment<T : ViewBinding> : Fragment() {
         val toastIcon = layout.findViewById<ImageView>(R.id.iv_toast_icon)
 
         // 設定文字
-        toastText.text = msgStr ?: this.getString(msg)
+        toastText.text = msgStr ?: getResourceString(msg)
         toastText.setTextColor(Color.WHITE)
 
         // 設定背景顏色（若你的最外層 layout 沒背景的話需要加）

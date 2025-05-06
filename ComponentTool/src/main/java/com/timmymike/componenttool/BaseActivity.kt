@@ -19,7 +19,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.toColorInt
 import androidx.viewbinding.ViewBinding
+import com.timmymike.viewtool.getResourceString
 import com.timmymike.viewtool.getScreenHeightPixels
 import java.lang.reflect.ParameterizedType
 
@@ -170,7 +172,7 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
         msg: Int = 0,
         img: Int? = null,
         msgStr: String? = null,
-        bgColorId: Int = Color.parseColor("#B3000000"),
+        bgColorId: Int = "#B3000000".toColorInt(),
         disToBottom: Int = getScreenHeightPixels() / 2
     ) {
         val inflater = LayoutInflater.from(this)
@@ -180,7 +182,7 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
         val toastIcon = layout.findViewById<ImageView>(R.id.iv_toast_icon)
 
         // 設定文字
-        toastText.text = msgStr ?: this.getString(msg)
+        toastText.text = msgStr ?: this.getResourceString(msg)
         toastText.setTextColor(Color.WHITE)
 
         // 設定背景顏色（若你的最外層 layout 沒背景的話需要加）
