@@ -6,11 +6,11 @@ plugins {
 
 android {
     namespace 'com.timmymike.componenttool'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         minSdk 19
-        targetSdk 34
+        targetSdk 35
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -34,9 +34,9 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'com.google.android.material:material:1.5.0'
+    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     implementation 'com.github.timmymike:ViewTool:1.4.5'
@@ -44,8 +44,8 @@ dependencies {
 }
 
 task generateSourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier 'sources'
+    from android.sourceSets.main.java.getSrcDirs()
+    archiveClassifier.set('sources')
 }
 
 afterEvaluate {

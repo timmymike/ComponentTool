@@ -2,14 +2,12 @@ package com.timmymike.componenttool
 
 import android.app.Dialog
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
-import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.ColorDrawable
 import android.view.View
-import android.view.Window
+import android.view.WindowManager
 import android.widget.ProgressBar
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.timmymike.viewtool.getScreenWidthPixels
@@ -29,7 +27,10 @@ class ProgressDialog constructor(context: Context, pgColor: Int? = null, progres
 
         // 設定對話框底色為透明
         window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        // 不會搶走螢幕輸入的焦點，使其即使在顯示載入中，仍然可以接受條碼掃描器的輸入
         window?.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL)
+
         setContentView(
             ConstraintLayout(context).apply {
                 addView(

@@ -1,6 +1,7 @@
 package com.timmymike.componenttool
 
 import android.app.Activity
+import android.os.Build
 
 /**
  * Activity 轉場動畫工具類別
@@ -28,34 +29,52 @@ object TranslationUtil {
      */
     fun Activity.setAnimation(animType: AnimType?) {
         when (animType) {
-            AnimType.LEFT_TO_RIGHT -> this.overridePendingTransition(
+            AnimType.LEFT_TO_RIGHT -> this.overPendingTransition(
                 R.anim.push_left_in,
                 R.anim.push_left_out
             )
-            AnimType.RIGHT_TO_LEFT -> this.overridePendingTransition(
+
+            AnimType.RIGHT_TO_LEFT -> this.overPendingTransition(
                 R.anim.left_to_right,
                 R.anim.right_to_left
             )
-            AnimType.BOTTOM_TO_UP -> this.overridePendingTransition(
+
+            AnimType.BOTTOM_TO_UP -> this.overPendingTransition(
                 R.anim.bottom_to_up,
                 R.anim.up_to_bottom
             )
-            AnimType.UP_TO_BOTTOM -> this.overridePendingTransition(
+
+            AnimType.UP_TO_BOTTOM -> this.overPendingTransition(
                 R.anim.up_to_bottom2,
                 R.anim.bottom_to_up2
             )
-            AnimType.FADE_IN_OUT -> this.overridePendingTransition(
+
+            AnimType.FADE_IN_OUT -> this.overPendingTransition(
                 R.anim.fade_in,
                 R.anim.fade_out
             )
-            AnimType.ROTATION_IN -> this.overridePendingTransition(
+
+            AnimType.ROTATION_IN -> this.overPendingTransition(
                 R.anim.rotate_in_in,
                 R.anim.rotate_in_out
             )
-            AnimType.ROTATION_BACK -> this.overridePendingTransition(
+
+            AnimType.ROTATION_BACK -> this.overPendingTransition(
                 R.anim.rotate_out_in,
                 R.anim.rotate_out_out
             )
+
+            else -> {}
+        }
+    }
+
+    fun Activity.overPendingTransition(inAction: Int, outAction: Int) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            // Android 14 (API 34) 及以上使用新方法
+            overrideActivityTransition(Activity.OVERRIDE_TRANSITION_OPEN, inAction, outAction)
+        } else {
+            // 舊版仍使用兩參數方法
+            overridePendingTransition(inAction, outAction)
         }
     }
 }
