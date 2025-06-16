@@ -1,5 +1,6 @@
 package com.timmymike.componenttool
 
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -9,6 +10,7 @@ import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
+import android.view.Window
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
@@ -48,8 +50,13 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
 
     private var dialogThemeId: Int? = null
 
+    @Suppress("UNCHECKED_CAST")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        with(window) {
+            requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS)
+        }
 
         // 利用反射，呼叫指定 ViewBinding 中的 inflate 方法填充 View
         (javaClass.genericSuperclass as? ParameterizedType)?.let {
@@ -215,32 +222,38 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
      * @param msg  字串 或 資源檔內容
      * @param onPositivePress  按下確定時的動作，預設 null=按下後關閉
      * @param onNegativePress  按下取消時的動作，預設 null=不顯示
+     * @return 顯示的對話框 (Dialog)
      */
     fun showMessageDialog(
         msg: Any,
         onPositivePress: (() -> Unit)? = null,
         onNegativePress: (() -> Unit)? = null
-    ) {
-        (dialogThemeId?.let { AlertDialog.Builder(this, it) } ?: run { AlertDialog.Builder(this) }).apply {
-            setMessage(
-                when (msg) {
-                    is String -> msg
-                    is Int -> getString(msg)
-                    else -> msg.toString()
-                }
-            )
-            setPositiveButton(android.R.string.ok) { thisDlg, _ ->
-                onPositivePress?.invoke()
+    ): Dialog {
+        val builder = dialogThemeId?.let {
+            AlertDialog.Builder(this, it)
+        } ?: AlertDialog.Builder(this)
+
+        builder.setMessage(
+            when (msg) {
+                is String -> msg
+                is Int -> getString(msg)
+                else -> msg.toString()
+            }
+        )
+
+        builder.setPositiveButton(android.R.string.ok) { thisDlg, _ ->
+            onPositivePress?.invoke()
+            thisDlg.dismiss()
+        }
+
+        if (onNegativePress != null) {
+            builder.setNegativeButton(android.R.string.cancel) { thisDlg, _ ->
+                onNegativePress.invoke()
                 thisDlg.dismiss()
             }
-            if (onNegativePress != null) {
-                setNegativeButton(android.R.string.cancel) { thisDlg, _ ->
-                    onNegativePress.invoke()
-                    thisDlg.dismiss()
-                }
-            }
-            show()
         }
+
+        return builder.show()  // 回傳對話框物件
     }
 
     /**

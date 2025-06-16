@@ -1,5 +1,7 @@
 package com.timmymike.componenttool
 
+import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -16,7 +18,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.StyleRes
-import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.toColorInt
@@ -57,6 +58,7 @@ abstract class BaseFragment<T : ViewBinding> : Fragment() {
         this.mContext = context
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // 利用反射，呼叫指定 ViewBinding 中的 inflate 方法填充 View
         (javaClass.genericSuperclass as? ParameterizedType)?.let {
@@ -217,29 +219,33 @@ abstract class BaseFragment<T : ViewBinding> : Fragment() {
         msg: Any,
         onPositivePress: (() -> Unit)? = null,
         onNegativePress: (() -> Unit)? = null
-    ) {
-        (dialogThemeId?.let { AlertDialog.Builder(mContext, it) } ?: run { AlertDialog.Builder(mContext) }).apply {
-            setMessage(
-                when (msg) {
-                    is String -> msg
-                    is Int -> getString(msg)
-                    else -> msg.toString()
-                }
-            )
-            setPositiveButton(android.R.string.ok) { thisDlg, _ ->
-                onPositivePress?.invoke()
+    ): Dialog {
+        val builder = dialogThemeId?.let {
+            AlertDialog.Builder(mContext, it)
+        } ?: AlertDialog.Builder(mContext)
+
+        builder.setMessage(
+            when (msg) {
+                is String -> msg
+                is Int -> getString(msg)
+                else -> msg.toString()
+            }
+        )
+
+        builder.setPositiveButton(android.R.string.ok) { thisDlg, _ ->
+            onPositivePress?.invoke()
+            thisDlg.dismiss()
+        }
+
+        if (onNegativePress != null) {
+            builder.setNegativeButton(android.R.string.cancel) { thisDlg, _ ->
+                onNegativePress.invoke()
                 thisDlg.dismiss()
             }
-            if (onNegativePress != null) {
-                setNegativeButton(android.R.string.cancel) { thisDlg, _ ->
-                    onNegativePress.invoke()
-                    thisDlg.dismiss()
-                }
-            }
-            show()
         }
-    }
 
+        return builder.show()  // ← 回傳 AlertDialog 物件（它是 Dialog 的子類別）
+    }
 
     /**
      * 開啟外部預覽程式
