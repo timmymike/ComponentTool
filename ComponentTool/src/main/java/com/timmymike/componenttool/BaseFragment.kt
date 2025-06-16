@@ -1,7 +1,5 @@
 package com.timmymike.componenttool
 
-import android.app.AlertDialog
-import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -18,6 +16,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.StyleRes
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.toColorInt
@@ -219,7 +218,7 @@ abstract class BaseFragment<T : ViewBinding> : Fragment() {
         msg: Any,
         onPositivePress: (() -> Unit)? = null,
         onNegativePress: (() -> Unit)? = null
-    ): Dialog {
+    ): AlertDialog {
         val builder = dialogThemeId?.let {
             AlertDialog.Builder(mContext, it)
         } ?: AlertDialog.Builder(mContext)

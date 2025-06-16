@@ -1,6 +1,5 @@
 package com.timmymike.componenttool
 
-import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -228,7 +227,7 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
         msg: Any,
         onPositivePress: (() -> Unit)? = null,
         onNegativePress: (() -> Unit)? = null
-    ): Dialog {
+    ): AlertDialog {
         val builder = dialogThemeId?.let {
             AlertDialog.Builder(this, it)
         } ?: AlertDialog.Builder(this)
